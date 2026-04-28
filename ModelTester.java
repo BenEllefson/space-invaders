@@ -7,9 +7,23 @@ public class ModelTester {
     private static int passCount = 0;
     private static int totalCount = 0;
     
+    /**
+     * Helper method to verify a test condition and update pass/fail counters.
+     */
+    private static void check(boolean condition, String testName, String message) {
+        totalCount++;
+        if (condition) {
+            System.out.println("✓ PASS: " + testName);
+            passCount++;
+        } else {
+            System.out.println("✗ FAIL: " + testName + " - " + message);
+        }
+    }
+    
     public static void main(String[] args) {
         System.out.println("=== GameModel Unit Tests ===\n");
         
+        testPlayerBoundary();
         testPlayerLeftBoundary();
         testPlayerRightBoundary();
         testBulletInFlightBlocking();
@@ -19,6 +33,22 @@ public class ModelTester {
         
         System.out.println("\n=== Summary ===");
         System.out.println(passCount + "/" + totalCount + " tests passed");
+    }
+    
+    /**
+     * Test that the player's x position never goes below zero after 200 left movements.
+     */
+    private static void testPlayerBoundary() {
+        GameModel model = new GameModel();
+        
+        // Move left 200 times
+        for (int i = 0; i < 200; i++) {
+            model.movePlayerLeft();
+        }
+        
+        check(model.getPlayerX() >= 0, 
+              "Player left boundary (200 moves)", 
+              "Player x position is " + model.getPlayerX());
     }
     
     /**
@@ -48,7 +78,7 @@ public class ModelTester {
         totalCount++;
         GameModel model = new GameModel();
         
-        // Move right many times
+        // Move right many times 
         for (int i = 0; i < 1000; i++) {
             model.movePlayerRight();
         }
