@@ -11,7 +11,7 @@ import java.util.Random;
  * - Track enemy positions and states
  * - Track projectiles (bullets)
  * - Handle collision detection
- * - Update game state each frame
+ * - Update game state each frame 
  * - Manage game score and lives
  */
 public class GameModel {
@@ -47,6 +47,14 @@ public class GameModel {
     private int alienFireCounter;
     private static final int ALIEN_FIRE_INTERVAL = 60; // frames between shots
     
+    // Shields
+    private List<Shield> shields;
+    private static final int NUM_SHIELDS = 4;
+    private static final int SHIELD_WIDTH = 50;
+    private static final int SHIELD_HEIGHT = 40;
+    private static final int SHIELD_HEALTH = 3; // hits to destroy
+    private static final int SHIELD_Y = GAME_HEIGHT - 150;
+    
     // Game state
     private int score;
     private int lives;
@@ -81,6 +89,23 @@ public class GameModel {
     }
     
     /**
+     * Inner class to represent a shield.
+     */
+    public static class Shield {
+        public int x, y;
+        public int width, height;
+        public int health;
+        
+        public Shield(int x, int y, int width, int height, int health) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.health = health;
+        }
+    }
+    
+    /**
      * Constructor initializes the game state.
      */
     public GameModel() {
@@ -92,8 +117,10 @@ public class GameModel {
         score = 0;
         lives = 3;
         random = new Random();
+        shields = new ArrayList<>();
         
         initializeAliens();
+        initializeShields();
     }
     
     /**
@@ -107,6 +134,17 @@ public class GameModel {
                 int y = 30 + row * (ALIEN_HEIGHT + 10);
                 aliens[row][col] = new Alien(x, y);
             }
+        }
+    }
+    
+    /**
+     * Initialize shields positioned between the player and aliens.
+     */
+    private void initializeShields() {
+        int spacing = GAME_WIDTH / (NUM_SHIELDS + 1);
+        for (int i = 0; i < NUM_SHIELDS; i++) {
+            int x = spacing * (i + 1) - SHIELD_WIDTH / 2;
+            shields.add(new Shield(x, SHIELD_Y, SHIELD_WIDTH, SHIELD_HEIGHT, SHIELD_HEALTH));
         }
     }
     
@@ -251,7 +289,7 @@ public class GameModel {
     }
     
     /**
-     * Detect collisions between bullets and aliens or the player.
+     * Detect collisions between bullets and aliens, shields, or the player.
      */
     private void detectCollisions() {
         // Check player bullet against aliens
@@ -270,6 +308,30 @@ public class GameModel {
             }
         }
         
+        // Check player bullet against shields
+        if (playerBullet != null && playerBullet.active) {
+            for (Shield shield : shields) {
+                if (checkCollisionWithShield(playerBullet, shield)) {
+                    playerBullet = null;
+                    shield.health--;
+                    break;
+                }
+            }
+        }
+        
+        // Check alien bullets against shields
+        for (Bullet bullet : alienBullets) {
+            if (bullet.active) {
+                for (Shield shield : shields) {
+                    if (checkCollisionWithShield(bullet, shield)) {
+                        bullet.active = false;
+                        shield.health--;
+                        break;
+                    }
+                }
+            }
+        }
+        
         // Check alien bullets against player
         for (Bullet bullet : alienBullets) {
             if (bullet.active && checkCollisionWithPlayer(bullet)) {
@@ -278,6 +340,9 @@ public class GameModel {
                 break;
             }
         }
+        
+        // Remove shields with no health
+        shields.removeIf(shield -> shield.health <= 0);
     }
     
     /**
@@ -300,6 +365,16 @@ public class GameModel {
                bullet.y + 10 > PLAYER_Y;
     }
     
+    /**
+     * Check if a bullet collides with a shield.
+     */
+    private boolean checkCollisionWithShield(Bullet bullet, Shield shield) {
+        return bullet.x < shield.x + shield.width &&
+               bullet.x + 4 > shield.x &&
+               bullet.y < shield.y + shield.height &&
+               bullet.y + 10 > shield.y;
+    }
+    
     // ==================== Getter Methods ====================
     
     public int getPlayerX() { return playerX; }
@@ -313,6 +388,10 @@ public class GameModel {
     
     public Bullet getPlayerBullet() { return playerBullet; }
     public List<Bullet> getAlienBullets() { return alienBullets; }
+    
+    public List<Shield> getShields() { return shields; }
+    public int getShieldWidth() { return SHIELD_WIDTH; }
+    public int getShieldHeight() { return SHIELD_HEIGHT; }
     
     public int getScore() { return score; }
     public int getLives() { return lives; }
