@@ -11,7 +11,7 @@ import java.awt.event.KeyEvent;
  * Responsibilities:
  * - Create and initialize the game window (JFrame)
  * - Create the GameModel and GameView
- * - Set up the game loop
+ * - Set up the game loop 
  * - Handle user input and dispatch to the model
  * - Manage the overall game flow
  */
