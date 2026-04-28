@@ -9,7 +9,7 @@ import java.awt.Font;
  * 
  * Responsibilities:
  * - Render the player ship
- * - Render enemies
+ * - Render aliens (enemies)
  * - Render projectiles
  * - Render score and game status
  * - Handle all drawing logic
@@ -40,6 +40,7 @@ public class GameView extends JPanel {
         // Draw game elements
         drawPlayer(g);
         drawAliens(g);
+        drawShields(g);
         drawPlayerBullet(g);
         drawAlienBullets(g);
         drawHUD(g);
@@ -90,6 +91,29 @@ public class GameView extends JPanel {
                     g.setColor(Color.RED);
                 }
             }
+        }
+    }
+    
+    /**
+     * Draw the shields with color based on health.
+     * Health 3: Full green, Health 2: Yellow, Health 1: Dim red.
+     */
+    private void drawShields(Graphics g) {
+        for (GameModel.Shield shield : model.getShields()) {
+            // Choose color based on shield health
+            if (shield.health >= 3) {
+                g.setColor(Color.GREEN);
+            } else if (shield.health == 2) {
+                g.setColor(Color.YELLOW);
+            } else {
+                g.setColor(new Color(200, 0, 0)); // Dim red
+            }
+            
+            g.fillRect(shield.x, shield.y, shield.width, shield.height);
+            
+            // Draw a border to make shields more visible
+            g.setColor(Color.WHITE);
+            g.drawRect(shield.x, shield.y, shield.width, shield.height);
         }
     }
     
