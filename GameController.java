@@ -84,6 +84,12 @@ public class GameController {
             rightPressed = true;
         } else if (key == KeyEvent.VK_SPACE) {
             model.firePlayerBullet();
+        } else if (key == KeyEvent.VK_R) {
+            // Restart the game
+            model.reset();
+            if (!gameLoop.isRunning()) {
+                gameLoop.start();
+            }
         }
     }
     
