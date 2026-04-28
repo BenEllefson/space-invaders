@@ -33,9 +33,11 @@ public class GameModel {
     private static final int ALIEN_ROWS = 5;
     private static final int ALIEN_COLS = 11;
     private static final int ALIEN_SPEED = 2;
+    private static final double SPEED_INCREASE_FACTOR = 1.08; // 8% speed increase per alien destroyed
     
     private Alien[][] aliens;
     private int alienDirection; // 1 for right, -1 for left
+    private double currentAlienSpeed; // Tracks speed increase as aliens are destroyed
     
     // Player bullet
     private Bullet playerBullet;
@@ -118,6 +120,7 @@ public class GameModel {
         lives = 3;
         random = new Random();
         shields = new ArrayList<>();
+        currentAlienSpeed = ALIEN_SPEED;
         
         initializeAliens();
         initializeShields();
@@ -254,7 +257,7 @@ public class GameModel {
             // Move horizontally
             for (int row = 0; row < ALIEN_ROWS; row++) {
                 for (int col = 0; col < ALIEN_COLS; col++) {
-                    aliens[row][col].x += ALIEN_SPEED * alienDirection;
+                    aliens[row][col].x += (int)currentAlienSpeed * alienDirection;
                 }
             }
         }
@@ -301,6 +304,7 @@ public class GameModel {
                         alien.alive = false;
                         playerBullet = null;
                         score += 10;
+                        currentAlienSpeed *= SPEED_INCREASE_FACTOR;
                         break;
                     }
                 }
@@ -398,4 +402,13 @@ public class GameModel {
     
     public int getGameWidth() { return GAME_WIDTH; }
     public int getGameHeight() { return GAME_HEIGHT; }
+    
+    /**
+     * Get the recommended timer interval (in milliseconds) based on current alien speed.
+     * As the game speeds up, this interval decreases, making the game loop run faster.
+     */
+    public int getRecommendedTimerInterval() {
+        double speedFactor = currentAlienSpeed / ALIEN_SPEED;
+        return (int)(16 / speedFactor);
+    }
 }
