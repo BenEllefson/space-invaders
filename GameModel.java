@@ -111,6 +111,15 @@ public class GameModel {
      * Constructor initializes the game state.
      */
     public GameModel() {
+        random = new Random();
+        reset();
+    }
+    
+    /**
+     * Reset the game state to initial values.
+     * This allows the game to be restarted without creating a new model.
+     */
+    public void reset() {
         playerX = GAME_WIDTH / 2 - PLAYER_WIDTH / 2;
         alienDirection = 1;
         playerBullet = null;
@@ -118,7 +127,6 @@ public class GameModel {
         alienFireCounter = 0;
         score = 0;
         lives = 3;
-        random = new Random();
         shields = new ArrayList<>();
         currentAlienSpeed = ALIEN_SPEED;
         
