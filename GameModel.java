@@ -59,6 +59,7 @@ public class GameModel {
     
     // Game state
     private int score;
+    private int highScore;
     private int lives;
     private Random random;
     
